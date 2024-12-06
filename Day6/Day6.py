@@ -3,18 +3,22 @@
 #
 # Dr Bob
 
-import copy
-
 INPUT_FILE_TEST = "input_test.txt"
 INPUT_FILE = "input.txt"
 
 PUZZLE_1_TEST_RESULT = 41
 PUZZLE_2_TEST_RESULT = 6
 
+d = "^>v<"
+
+
+def get_start(input):
+    start_y = ["^" in l for l in input].index(True)
+    return input[start_y].index("^"), start_y
+
 
 def solve_path(input):
-    y = ["^" in l for l in input].index(True)
-    x = input[y].index("^")
+    x, y = get_start(input)
 
     directions = {
         "^": (0, -1),
@@ -22,8 +26,9 @@ def solve_path(input):
         "v": (0, 1),
         "<": (-1, 0)
     }
-    d = "^>v<"
     d_idx = 0
+
+    path = {(x, y): "^"}
 
     while (True):
         new_x = x + directions[d[d_idx]][0]
@@ -33,29 +38,32 @@ def solve_path(input):
             break
         elif input[new_y][new_x] == "#":
             d_idx = (d_idx + 1) % len(d)
-        elif d[d_idx] in input[new_y][new_x]:
+        elif d[d_idx] in path.get((new_x, new_y), ""):
             return None
         else:
             x = new_x
             y = new_y
-        input[y][x] = input[y][x] + d[d_idx]
+        path[(x, y)] = path.get((x, y), "") + d[d_idx]
 
-    return len([c for l in input for c in l if not set(c).isdisjoint(d)])
+    return path
 
 
 def do_puzzle1(input):
-    return solve_path(input)
+    return len(solve_path(input))
 
 
 def do_puzzle2(input):
     count = 0
-    for y in range(len(input)):
-        for x in range(len(input[y])):
-            if input[y][x] == ".":
-                test_input = copy.deepcopy(input)
-                test_input[y][x] = "#"
-                if solve_path(test_input) is None:
-                    count = count + 1
+    start_x, start_y = get_start(input)
+    path = solve_path(input)
+
+    for x, y in path:
+        if not (x == start_x and y == start_y):
+            input[y][x] = "#"
+            if solve_path(input) is None:
+                count = count + 1
+            input[y][x] = path[(x, y)]
+
     return count
 
 
