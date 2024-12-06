@@ -62,7 +62,7 @@ def do_puzzle2(input):
             input[y][x] = "#"
             if solve_path(input) is None:
                 count = count + 1
-            input[y][x] = path[(x, y)]
+            input[y][x] = "."
 
     return count
 
