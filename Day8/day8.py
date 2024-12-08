@@ -20,20 +20,6 @@ def parse_data(input):
     return transmitters
 
 
-# def get_antinodes(transmitters):
-#     antinodes = set()
-#     for t in transmitters:
-#         for p, a in enumerate(transmitters[t]):
-#             for q, b in enumerate(transmitters[t][p + 1:]):
-#                 a_x, a_y = transmitters[t][p]
-#                 b_x, b_y = transmitters[t][p + q + 1]
-#                 delta_x = b_x - a_x
-#                 delta_y = b_y - a_y
-#                 antinodes.add((a_x - delta_x, a_y - delta_y))
-#                 antinodes.add((b_x + delta_x, b_y + delta_y))
-#     return antinodes
-
-
 def get_antinodes(transmitters, lim_x, lim_y, resonance=False):
     antinodes = set()
     for t in transmitters.values():
