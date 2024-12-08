@@ -5,6 +5,8 @@
 
 import itertools
 
+import numpy
+
 INPUT_FILE_TEST = "input_test.txt"
 INPUT_FILE = "input.txt"
 
@@ -20,29 +22,27 @@ def parse_data(input):
     return transmitters
 
 
+def trace_antinodes(antinodes, start, delta, f, lim_x, lim_y, resonance):
+    x, y = cursor = start
+    dx, dy = delta
+
+    while 0 <= x < lim_x and 0 <= y < lim_y:
+        if resonance or cursor != start:
+            antinodes.add(cursor)
+        if not resonance and cursor != start:
+            break
+
+        cursor = (f(x, dx), f(y, dy))
+        x, y = cursor
+
+
 def get_antinodes(transmitters, lim_x, lim_y, resonance=False):
     antinodes = set()
     for t in transmitters.values():
         for a, b in list(itertools.combinations(t, 2)):
-            a_x, a_y = a
-            b_x, b_y = b
-            delta_x = b_x - a_x
-            delta_y = b_y - a_y
-
-            while 0 <= a_x < lim_x and 0 <= a_y < lim_y:
-                if resonance or (a_x, a_y) != a:
-                    antinodes.add((a_x, a_y))
-                if not resonance and (a_x, a_y) != a:
-                    break
-                a_x = a_x - delta_x
-                a_y = a_y - delta_y
-            while 0 <= b_x < lim_x and 0 <= b_y < lim_y:
-                if resonance or (b_x, b_y) != b:
-                    antinodes.add((b_x, b_y))
-                if not resonance and (b_x, b_y) != b:
-                    break
-                b_x = b_x + delta_x
-                b_y = b_y + delta_y
+            delta = numpy.subtract(b, a)
+            trace_antinodes(antinodes, a, delta, lambda p, q: p - q, lim_x, lim_y, resonance)
+            trace_antinodes(antinodes, b, delta, lambda p, q: p + q, lim_x, lim_y, resonance)
     return antinodes
 
 
