@@ -20,50 +20,52 @@ def parse_data(input):
     return transmitters
 
 
-def get_antinodes(transmitters):
+# def get_antinodes(transmitters):
+#     antinodes = set()
+#     for t in transmitters:
+#         for p, a in enumerate(transmitters[t]):
+#             for q, b in enumerate(transmitters[t][p + 1:]):
+#                 a_x, a_y = transmitters[t][p]
+#                 b_x, b_y = transmitters[t][p + q + 1]
+#                 delta_x = b_x - a_x
+#                 delta_y = b_y - a_y
+#                 antinodes.add((a_x - delta_x, a_y - delta_y))
+#                 antinodes.add((b_x + delta_x, b_y + delta_y))
+#     return antinodes
+
+
+def get_antinodes(transmitters, lim_x, lim_y, resonance=False):
     antinodes = set()
-    for t in transmitters:
-        for p, a in enumerate(transmitters[t]):
-            for q, b in enumerate(transmitters[t][p + 1:]):
-                a_x, a_y = transmitters[t][p]
-                b_x, b_y = transmitters[t][p + q + 1]
-                delta_x = b_x - a_x
-                delta_y = b_y - a_y
-                antinodes.add((a_x - delta_x, a_y - delta_y))
-                antinodes.add((b_x + delta_x, b_y + delta_y))
-    return antinodes
-
-
-def get_resonances(transmitters, lim_x, lim_y):
-    resonances = set()
     for t in transmitters.values():
         for a, b in list(itertools.combinations(t, 2)):
             a_x, a_y = a
             b_x, b_y = b
             delta_x = b_x - a_x
             delta_y = b_y - a_y
-            resonances.add(a)
-            resonances.add(b)
+
             while 0 <= a_x < lim_x and 0 <= a_y < lim_y:
+                if resonance or (a_x, a_y) != a:
+                    antinodes.add((a_x, a_y))
+                if not resonance and (a_x, a_y) != a:
+                    break
                 a_x = a_x - delta_x
                 a_y = a_y - delta_y
-                resonances.add((a_x, a_y))
             while 0 <= b_x < lim_x and 0 <= b_y < lim_y:
+                if resonance or (b_x, b_y) != b:
+                    antinodes.add((b_x, b_y))
+                if not resonance and (b_x, b_y) != b:
+                    break
                 b_x = b_x + delta_x
                 b_y = b_y + delta_y
-                resonances.add((b_x, b_y))
-    return resonances
+    return antinodes
 
 
 def do_puzzle1(input):
-    return len([True for (x, y) in get_antinodes(parse_data(input)) if 0 <= x < len(input[0]) and 0 <= y < len(input)])
+    return len(get_antinodes(parse_data(input), len(input[0]), len(input)))
 
 
 def do_puzzle2(input):
-    transmitters = parse_data(input)
-    antinodes = get_antinodes(transmitters)
-    resonances = get_resonances(transmitters, len(input[0]), len(input))
-    return len([True for (x, y) in antinodes.union(resonances) if 0 <= x < len(input[0]) and 0 <= y < len(input)])
+    return len(get_antinodes(parse_data(input), len(input[0]), len(input), resonance=True))
 
 
 # slurp file into a list
