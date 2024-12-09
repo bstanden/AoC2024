@@ -22,27 +22,22 @@ def parse_data(input):
     return transmitters
 
 
-def trace_antinodes(antinodes, start, delta, f, lim_x, lim_y, resonance):
-    x, y = cursor = start
-    dx, dy = delta
-
+def trace_antinodes(antinodes, start, delta, lim_x, lim_y, resonance):
+    x, y = start
     while 0 <= x < lim_x and 0 <= y < lim_y:
-        if resonance or cursor != start:
-            antinodes.add(cursor)
-        if not resonance and cursor != start:
+        if resonance or ((x, y) != start):
+            antinodes.add((x, y))
+        if not resonance and (x, y) != start:
             break
-
-        cursor = (f(x, dx), f(y, dy))
-        x, y = cursor
+        x, y = numpy.add((x, y), delta)
 
 
 def get_antinodes(transmitters, lim_x, lim_y, resonance=False):
     antinodes = set()
     for t in transmitters.values():
         for a, b in list(itertools.combinations(t, 2)):
-            delta = numpy.subtract(b, a)
-            trace_antinodes(antinodes, a, delta, lambda p, q: p - q, lim_x, lim_y, resonance)
-            trace_antinodes(antinodes, b, delta, lambda p, q: p + q, lim_x, lim_y, resonance)
+            trace_antinodes(antinodes, a, numpy.subtract(a, b), lim_x, lim_y, resonance)
+            trace_antinodes(antinodes, b, numpy.subtract(b, a), lim_x, lim_y, resonance)
     return antinodes
 
 
