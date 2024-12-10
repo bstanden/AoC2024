@@ -29,7 +29,7 @@ def distinct_paths(p, data):
     if get_point(p, data) == 9:
         return {p}
 
-    return set().union(*[p for p in [distinct_paths(n, data) for n in get_neighbours(p, data)] if p])
+    return set().union(*[distinct_paths(n, data) for n in get_neighbours(p, data)])
 
 
 def num_paths(p, data):
