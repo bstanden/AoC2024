@@ -10,8 +10,8 @@ PUZZLE_1_TEST_RESULT = 36
 PUZZLE_2_TEST_RESULT = 81
 
 
-def parse_data(input):
-    data = [[int(c) if c.isdigit() else -1 for c in line] for line in input]
+def parse_data(i):
+    data = [[int(c) if c.isdigit() else -1 for c in line] for line in i]
     return data, [(x, y) for y in range(len(data)) for x in range(len(data[y])) if data[y][x] == 0]
 
 
@@ -21,39 +21,31 @@ def get_point(p, data):
 
 
 def get_neighbours(p, data):
-    return [(p[0] + d[0], p[1] + d[1]) for d in [(1, 0), (0, 1), (-1, 0), (0, -1)]
-            if get_point((p[0] + d[0], p[1] + d[1]), data) == get_point(p, data) + 1]
+    return [np for d in [(1, 0), (0, 1), (-1, 0), (0, -1)]
+            if get_point(np := (p[0] + d[0], p[1] + d[1]), data) == get_point(p, data) + 1]
 
 
-def distinct_paths(p, data):
-    if get_point(p, data) == 9:
-        return {p}
-
-    return set().union(*[distinct_paths(n, data) for n in get_neighbours(p, data)])
+def distinct_paths(p, data) -> set:
+    return {p} if get_point(p, data) == 9 else set().union(*[distinct_paths(n, data) for n in get_neighbours(p, data)])
 
 
-def num_paths(p, data):
-    if get_point(p, data) == 9:
-        return 1
-
-    return sum([num_paths(n, data) for n in get_neighbours(p, data)])
+def num_paths(p, data) -> int:
+    return 1 if get_point(p, data) == 9 else sum([num_paths(n, data) for n in get_neighbours(p, data)])
 
 
-def do_puzzle1(input):
-    data, start = parse_data(input)
+def do_puzzle1(i):
+    data, start = parse_data(i)
     return sum([len(p) for p in [distinct_paths(s, data) for s in start]])
 
 
-def do_puzzle2(input):
-    data, start = parse_data(input)
+def do_puzzle2(i):
+    data, start = parse_data(i)
     return sum([p for p in [num_paths(s, data) for s in start]])
 
 
 # slurp file into a list
 def read_file(_filename):
-    with open(_filename, 'r') as f:
-        lines = f.readlines()
-    return [e.strip() for e in lines]
+    return  [line.rstrip() for line in open(_filename, 'r')]
 
 
 # check we're being run directly
