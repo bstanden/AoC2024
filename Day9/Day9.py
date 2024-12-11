@@ -92,19 +92,21 @@ def do_puzzle2(input):
             for p, (length, gap) in
             enumerate([(int(input[0][i]), int(input[0][i + 1])) for i in range(0, len(input[0]), 2)])}
 
-    for file in range(len(disk) - 1, 0, -1):
-        sorted_files = sorted(disk, key=lambda x: disk[x]["start"])
-        for f in sorted_files:
-            if disk[file]['start'] <= disk[f]['start']:
+    for src_id in range(len(disk) - 1, 0, -1):
+        src=disk[src_id]
+        sorted_id = sorted(disk, key=lambda x: disk[x]["start"])
+        for dest_id in sorted_id:
+            dest=disk[dest_id]
+            if src['start'] <= dest['start']:
                 break
-            elif disk[f]['gap'] >= disk[file]['len']:
-                for q in disk:
-                    if disk[q]['start'] + disk[q]['len'] + disk[q]['gap'] == disk[file]['start']:
-                        disk[q]['gap'] = disk[q]['gap'] + disk[file]['gap'] + disk[file]['len']
+            elif dest['gap'] >= src['len']:
+                for q in disk.values():
+                    if q['start'] + q['len'] + q['gap'] == src['start']:
+                        q['gap'] = q['gap'] + src['gap'] + src['len']
                         break
-                disk[file]['gap'] = disk[f]['gap'] - disk[file]['len']
-                disk[file]['start'] = disk[f]['start'] + disk[f]['len']
-                disk[f]['gap'] = 0
+                src['gap'] = dest['gap'] - src['len']
+                src['start'] = dest['start'] + dest['len']
+                dest['gap'] = 0
                 break
 
     return sum([pos * q for q in disk for pos in range(disk[q]['start'], disk[q]['start'] + disk[q]['len'])])
