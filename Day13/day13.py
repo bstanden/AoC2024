@@ -46,7 +46,6 @@ if __name__ == '__main__':
     # puzzle 1
     result = do_puzzle1(read_file(INPUT_FILE))
     print(f"puzzle1 result: {result}")
-    result = do_puzzle2(read_file(INPUT_FILE_TEST))
 
     # puzzle 2
     result = do_puzzle2(read_file(INPUT_FILE))
