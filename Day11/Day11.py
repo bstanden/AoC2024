@@ -30,11 +30,13 @@ def get_stone_count(s, max_depth, stones_map, depth=0):
 
 
 def do_puzzle1(i):
-    return sum([get_stone_count(s, 25, dict()) for s in sorted([int(n) for n in i[0].split(" ")])])
+    stone_map=dict()
+    return sum([get_stone_count(s, 25, stone_map) for s in sorted([int(n) for n in i[0].split(" ")])])
 
 
 def do_puzzle2(i):
-    return sum([get_stone_count(s, 75, dict()) for s in sorted([int(n) for n in i[0].split(" ")])])
+    stone_map=dict()
+    return sum([get_stone_count(s, 75, stone_map) for s in sorted([int(n) for n in i[0].split(" ")])])
 
 
 # slurp file into a list
