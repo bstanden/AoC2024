@@ -10,12 +10,11 @@ PUZZLE_1_TEST_RESULT = 1930
 PUZZLE_2_TEST_RESULT = 1206
 
 
-def count_vertices(plots, i, plot):
+def count_vertices(i, plot):
     count = 0
 
     for p in plot['extent']:
-        fences = [(fp, fn) for (fp, fn) in plot['fences'] if fp == p]
-        match len(fences):
+        match len(fences := [(fp, fn) for (fp, fn) in plot['fences'] if fp == p]):
             case 2:
                 ((_), (ax, ay)), ((_), (bx, by)) = fences
                 if ax != bx and ay != by:
@@ -25,29 +24,24 @@ def count_vertices(plots, i, plot):
             case 4:
                 count += 4
 
-    for p in plot['extent']:
-        count += [get_neighbour(i, p, (x1 + x2, y1 + y2))[1] != plot['plant'] and
-                  (get_neighbour(i, p, (x1, y1))[1] == get_neighbour(i, p, (x2, y2))[1] == plot['plant'])
-                  for ((x1, y1), (x2, y2)) in
-                  [((0, -1), (-1, 0)), ((0, -1), (1, 0)), ((1, 0), (0, 1)), ((0, 1), (-1, 0))]].count(True)
+    count += sum([[get_neighbour(i, p, (a[0] + b[0], a[1] + b[1]))[1] != plot['plant'] and
+                   (get_neighbour(i, p, a)[1] == get_neighbour(i, p, b)[1] == plot['plant'])
+                   for p in plot['extent']
+                   for (a,b) in
+                   [((0, -1), (-1, 0)), ((0, -1), (1, 0)), ((1, 0), (0, 1)), ((0, 1), (-1, 0))]].count(True)])
 
     return count
 
 
 def get_neighbour(i, p, d):
-    x, y = p
-    dx, dy = d
-    nx = x + dx
-    ny = y + dy
+    nx,ny=tuple(sum(pair) for pair in zip(p, d))
     return (nx, ny), i[ny][nx] if 0 <= ny < len(i) and 0 <= nx < len(i[0]) else "."
 
 
 def get_plot(p, i, plot=None):
     if not plot:
         x, y = p
-        plot = {'plant': i[y][x],
-                'extent': [],
-                'fences': []}
+        plot = {'plant': i[y][x], 'extent': [], 'fences': []}
     plot['extent'].append(p)
     for (x, y), n in [get_neighbour(i, p, d) for d in [(1, 0), (0, 1), (-1, 0), (0, -1)]]:
         if n == plot['plant']:
@@ -59,24 +53,17 @@ def get_plot(p, i, plot=None):
     return plot
 
 
-def do_puzzle1(i):
+def get_plots(i):
     plots = []
-    for y in range(len(i)):
-        for x in range(len(i[y])):
-            if not any([(x, y) in p['extent'] for p in plots]):
-                plots.append(get_plot((x, y), i))
+    _=[plots.append(get_plot((x, y), i)) for y in range(len(i))  for x in range(len(i[y])) if not any([(x, y) in p['extent'] for p in plots])]
+    return plots
 
-    return sum([len(p['fences']) * len(p['extent']) for p in plots])
+def do_puzzle1(i):
+    return sum([len(p['fences']) * len(p['extent']) for p in get_plots(i)])
 
 
 def do_puzzle2(i):
-    plots = []
-    for y in range(len(i)):
-        for x in range(len(i[y])):
-            if not any([(x, y) in p['extent'] for p in plots]):
-                plots.append(get_plot((x, y), i))
-
-    return sum([count_vertices(plots, i, p) * len(p['extent']) for p in plots])
+    return sum([count_vertices(i, p) * len(p['extent']) for p in get_plots(i)])
 
 
 # slurp file into a list
